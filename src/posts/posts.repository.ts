@@ -7,7 +7,11 @@ export class PostsRepository {
   constructor(private readonly prisma: PrismaService) {}
   createPost(createPostDto: CreatePostDto) {
     return this.prisma.post.create({
-      data: createPostDto,
+      data: {
+        title: createPostDto.title,
+        content: createPostDto.content,
+        authorId: createPostDto.authorId,
+      },
     });
   }
 }
