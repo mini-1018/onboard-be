@@ -22,15 +22,15 @@ jobs:
     - name: Set up environment variables
       run: |
         ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_ADDRESS }} "bash -s" << 'EOF'
-        if [ ! -f ~/var/www/recording/.env ]; then
-          touch ~/var/www/recording/.env
+        if [ ! -f ~/var/www/ReCording-BE/.env ]; then
+          touch ~/var/www/ReCording-BE/.env
         fi
-        echo "${{ secrets.ENV_FILE }}" > ~/var/www/recording/.env
+        echo "${{ secrets.ENV_FILE }}" > ~/var/www/ReCording-BE/.env
         EOF
     - name: Deploy to EC2
       run: |
         ssh -i ~/.ssh/ec2.pem -T ec2-user@${{ secrets.EC2_ADDRESS }} << 'EOF'
-          cd ~/var/www/recording
+          cd ~/var/www/ReCording-BE
           git fetch origin main
           git reset --hard origin/main
           npm install
