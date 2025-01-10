@@ -22,23 +22,23 @@ jobs:
     - name: Set up environment variables
       run: |
         ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_ADDRESS }} "bash -s" << 'EOF'
-        if [ ! -f ~/var/www/ReCording/.env ]; then
-          touch ~/var/www/ReCording/.env
+        if [ ! -f ~/var/www/recording/.env ]; then
+          touch ~/var/www/recording/.env
         fi
-        echo "${{ secrets.ENV_FILE }}" > ~/var/www/ReCording/.env
+        echo "${{ secrets.ENV_FILE }}" > ~/var/www/recording/.env
         EOF
     - name: Deploy to EC2
       run: |
         ssh -i ~/.ssh/ec2.pem -T ec2-user@${{ secrets.EC2_ADDRESS }} << 'EOF'
-          cd ~/var/www/ReCording
+          cd ~/var/www/recording
           git fetch origin main
           git reset --hard origin/main
           npm install
           npm run build
           
-          if ! pm2 list | grep -q "ReCording"; then
-            pm2 start dist/app.js --name ReCording -i max
+          if ! pm2 list | grep -q "recording"; then
+            pm2 start dist/app.js --name recording -i max
           else
-            pm2 reload ReCording --update-env
+            pm2 reload recording --update-env
           fi
         EOF
