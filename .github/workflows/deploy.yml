@@ -37,7 +37,7 @@ jobs:
           npm run build
           
           if ! pm2 list | grep -q "recording"; then
-            pm2 start dist/app.js --name recording -i max
+            pm2 start dist/main.js --name recording -i max
           else
             pm2 reload recording --update-env
           fi
