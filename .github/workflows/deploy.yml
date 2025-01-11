@@ -22,23 +22,23 @@ jobs:
     - name: Set up environment variables
       run: |
         ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_ADDRESS }} "bash -s" << 'EOF'
-        if [ ! -f ~/var/www/ReCording-BE/.env ]; then
-          touch ~/var/www/ReCording-BE/.env
+        if [ ! -f ~/var/www/onboard-be/.env ]; then
+          touch ~/var/www/onboard-be/.env
         fi
-        echo "${{ secrets.ENV_FILE }}" > ~/var/www/ReCording-BE/.env
+        echo "${{ secrets.ENV_FILE }}" > ~/var/www/onboard-be/.env
         EOF
     - name: Deploy to EC2
       run: |
         ssh -i ~/.ssh/ec2.pem -T ec2-user@${{ secrets.EC2_ADDRESS }} << 'EOF'
-          cd ~/var/www/ReCording-BE
+          cd ~/var/www/onboard-be
           git fetch origin main
           git reset --hard origin/main
           npm install
           npm run build
           
-          if ! pm2 list | grep -q "recording"; then
-            pm2 start dist/main.js --name recording -i max
+          if ! pm2 list | grep -q "onboard"; then
+            pm2 start dist/main.js --name onboard -i max
           else
-            pm2 reload recording --update-env
+            pm2 reload onboard --update-env
           fi
         EOF
