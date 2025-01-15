@@ -11,7 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}
 
-  @Post('images')
+  @Post()
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     return this.imagesService.uploadImage(file);
