@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET, REFRESH_SECRET } from '@src/env';
+import { JWT_SECRET, REFRESH_SECRET } from '@/env';
 
 export interface Payload {
   id: number;
