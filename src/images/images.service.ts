@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common';
 import {
   AWS_S3_ACCESS_KEY,
   AWS_S3_BUCKET_NAME,
+  AWS_S3_REGION,
   AWS_S3_SECRET_KEY,
-} from '@src/env';
-import { AWS_S3_REGION } from '@src/env';
+} from '@/env';
 
 @Injectable()
 export class ImagesService {
