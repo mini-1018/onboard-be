@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 //.env 파일의 환경변수값을 가져와 전역변수로 사용
