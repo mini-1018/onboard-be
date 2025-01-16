@@ -22,6 +22,7 @@ model User {
   updatedAt DateTime  @updatedAt
   posts     Post[]
   comments  Comment[]
+  likes     Like[]
 }
 
 model Post {
@@ -34,6 +35,8 @@ model Post {
   updatedAt DateTime  @updatedAt
   comments  Comment[]
   images    Image[]
+  likes     Like[]
+  tags      Tag[]
 }
 
 model Comment {
@@ -53,6 +56,24 @@ model Image {
   postId    Int
   post      Post     @relation(fields: [postId], references: [id])
   status    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String
+  posts     Post[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
