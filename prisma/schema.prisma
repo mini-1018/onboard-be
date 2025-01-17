@@ -29,8 +29,8 @@ model Post {
   id        Int       @id @default(autoincrement())
   title     String
   content   String
-  authorId  Int
-  author    User      @relation(fields: [authorId], references: [id])
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   comments  Comment[]
@@ -44,8 +44,8 @@ model Comment {
   content   String
   postId    Int
   post      Post     @relation(fields: [postId], references: [id])
-  authorId  Int
-  author    User     @relation(fields: [authorId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -72,7 +72,7 @@ model Like {
 
 model Tag {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   posts     Post[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
