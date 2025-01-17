@@ -9,9 +9,9 @@ async function bootstrap() {
 
   // 또는 상세 설정
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3001'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    credentials: true,
+    credentials: false,
     allowedHeaders: ['Content-Type', 'Authorization', 'multipart/form-data'],
   });
 

@@ -8,7 +8,14 @@ import { LikesModule } from './likes/likes.module';
 import { CommentsModule } from './comments/comments.module';
 
 @Module({
-  imports: [UsersModule, PostsModule, ImagesModule, TagsModule, LikesModule, CommentsModule],
+  imports: [
+    UsersModule,
+    PostsModule,
+    ImagesModule,
+    TagsModule,
+    LikesModule,
+    CommentsModule,
+  ],
   providers: [PrismaService],
   exports: [PrismaService],
 })

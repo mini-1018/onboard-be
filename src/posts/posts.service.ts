@@ -6,16 +6,28 @@ import { PostsRepository } from './posts.repository';
 @Injectable()
 export class PostsService {
   constructor(private readonly postsRepository: PostsRepository) {}
-  create(createPostDto: CreatePostDto) {
-    return this.postsRepository.createPost(createPostDto);
+  create(createPostDto: CreatePostDto, userId: number) {
+    const postData = {
+      title: createPostDto.title,
+      content: createPostDto.content,
+      user: { connect: { id: userId || 1 } },
+      tags: {
+        connectOrCreate: createPostDto.tags.map((tagName) => ({
+          where: { name: tagName },
+          create: { name: tagName },
+        })),
+      },
+    };
+
+    return this.postsRepository.createPost(postData);
   }
 
   findAll() {
-    return `This action returns all posts`;
+    return this.postsRepository.findAll();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} post`;
+    return this.postsRepository.findOne(id);
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {
