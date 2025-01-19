@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@src/prisma/prisma.service';
+import { GetPostsDto } from './dto/get-Posts.dto';
 
 interface PostData {
   title: string;
@@ -24,8 +25,13 @@ export class PostsRepository {
     });
   }
 
-  findAll() {
+  async getPosts(queryParams: Prisma.PostFindManyArgs) {
+    const totalCount = await this.prisma.post.count();
+    console.log('Total posts:', totalCount);
+    console.log('Query params:', queryParams);
+
     return this.prisma.post.findMany({
+      ...queryParams,
       include: {
         user: { select: { id: true, name: true } },
         tags: { select: { name: true } },
