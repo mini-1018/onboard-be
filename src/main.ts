@@ -1,11 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 모든 도메인 허용
-  app.enableCors();
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  ),
+    // 모든 도메인 허용
+    app.enableCors();
 
   // 또는 상세 설정
   app.enableCors({

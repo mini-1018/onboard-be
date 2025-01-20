@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsRepository } from './posts.repository';
-import { GetPostsDto, PostOrderBy } from './dto/get-Posts.dto';
+import { GetPostsDto, PostOrderBy } from './dto/get-posts.dto';
 import { Post, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -72,9 +72,9 @@ export class PostsService {
   private queryParams(query: GetPostsDto): Prisma.PostFindManyArgs {
     const { cursor, limit, tag, search, orderBy } = query;
     return {
-      take: Number(limit) + 1,
-      skip: Number(cursor) ? 1 : 0,
-      cursor: cursor ? { id: Number(cursor) } : undefined,
+      take: limit + 1,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
       where:
         query.tag || query.search ? this.whereOptions(tag, search) : undefined,
       orderBy: this.orderByOptions(orderBy),
@@ -82,7 +82,7 @@ export class PostsService {
   }
 
   private formatPostsResponse(posts: Post[], query: GetPostsDto) {
-    const hasNextPage = posts.length > Number(query.limit);
+    const hasNextPage = posts.length > query.limit;
     const postsData = hasNextPage ? posts.slice(0, -1) : posts;
 
     return {

@@ -12,18 +12,9 @@ export class UsersService {
   async signup(createUserDto: CreateUserDto) {
     const { email, password } = createUserDto;
 
-    const existingUser = await this.usersRepository.findUserByEmail(email);
-
-    if (existingUser) {
-      throw new HttpError(409, '이미 존재하는 이메일입니다.');
-    }
-
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      createUserDto.password = hashedPassword;
-    } catch (error) {
-      throw new HttpError(500, '비밀번호 암호화 실패');
-    }
+    await this.checkExistingUser(email);
+    const hashedPassword = await this.hashPassword(password);
+    createUserDto.password = hashedPassword;
 
     return this.usersRepository.createUser(createUserDto);
   }
@@ -31,18 +22,42 @@ export class UsersService {
   async signin(signinDto: SigninDto) {
     const { email, password } = signinDto;
 
-    const user = await this.usersRepository.findUserByEmail(email);
+    const user = await this.findUserByEmail(email);
+    await this.comparePassword(password, user.password);
 
+    return user;
+  }
+
+  private async checkExistingUser(email: string) {
+    const existingUser = await this.usersRepository.findUserByEmail(email);
+
+    if (existingUser) {
+      throw new HttpError(409, '이미 존재하는 이메일입니다.');
+    }
+  }
+
+  private async hashPassword(password: string) {
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      return hashedPassword;
+    } catch (error) {
+      throw new HttpError(500, '비밀번호 암호화 실패');
+    }
+  }
+
+  private async findUserByEmail(email: string) {
+    const user = await this.usersRepository.findUserByEmail(email);
     if (!user) {
       throw new HttpError(404, '존재하지 않는 이메일입니다.');
     }
+    return user;
+  }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
+  private async comparePassword(password: string, hashedPassword: string) {
+    const isPasswordValid = await bcrypt.compare(password, hashedPassword);
     if (!isPasswordValid) {
       throw new HttpError(401, '비밀번호가 일치하지 않습니다.');
     }
-
-    return user;
+    return isPasswordValid;
   }
 }
