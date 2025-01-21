@@ -68,7 +68,7 @@ export class PostsService {
       where.tags = { some: { name: tag } };
     }
 
-    if (search === null) {
+    if (search === '') {
       return { id: -1 };
     }
 
