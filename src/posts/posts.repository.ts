@@ -26,8 +26,6 @@ export class PostsRepository {
   }
 
   async getPosts(queryParams: Prisma.PostFindManyArgs) {
-    const totalCount = await this.prisma.post.count();
-
     return this.prisma.post.findMany({
       ...queryParams,
       include: {

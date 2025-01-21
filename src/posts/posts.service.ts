@@ -62,21 +62,33 @@ export class PostsService {
   }
 
   private whereOptions(tag?: string, search?: string) {
-    return {
-      tags: { some: { name: tag } },
-      title: { contains: search },
-      content: { contains: search },
-    };
+    const where: Prisma.PostWhereInput = {};
+
+    if (tag) {
+      where.tags = { some: { name: tag } };
+    }
+
+    if (search === null) {
+      return { id: -1 };
+    }
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search } },
+        { content: { contains: search } },
+      ];
+    }
+    return where;
   }
 
   private queryParams(query: GetPostsDto): Prisma.PostFindManyArgs {
     const { cursor, limit, tag, search, orderBy } = query;
+
     return {
       take: limit + 1,
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor } : undefined,
-      where:
-        query.tag || query.search ? this.whereOptions(tag, search) : undefined,
+      where: this.whereOptions(tag, search),
       orderBy: this.orderByOptions(orderBy),
     };
   }
