@@ -4,19 +4,31 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { SigninDto } from './dto/signin-user.dto';
 import * as bcrypt from 'bcrypt';
 import { HttpError } from '@src/common/exceptions/httpError';
+import { ImagesService } from '@src/images/images.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly imagesService: ImagesService,
+  ) {}
 
-  async signup(createUserDto: CreateUserDto) {
+  async signup(createUserDto: CreateUserDto, image?: Express.Multer.File) {
     const { email, password } = createUserDto;
 
     await this.checkExistingUser(email);
     const hashedPassword = await this.hashPassword(password);
-    createUserDto.password = hashedPassword;
 
-    return this.usersRepository.createUser(createUserDto);
+    let imageUrl: string | undefined;
+    if (image) {
+      imageUrl = await this.uploadUserImage(image);
+    }
+
+    return this.usersRepository.createUser({
+      ...createUserDto,
+      password: hashedPassword,
+      image: imageUrl,
+    });
   }
 
   async signin(signinDto: SigninDto) {
@@ -30,7 +42,6 @@ export class UsersService {
 
   private async checkExistingUser(email: string) {
     const existingUser = await this.usersRepository.findUserByEmail(email);
-
     if (existingUser) {
       throw new HttpError(409, '이미 존재하는 이메일입니다.');
     }
@@ -59,5 +70,14 @@ export class UsersService {
       throw new HttpError(401, '비밀번호가 일치하지 않습니다.');
     }
     return isPasswordValid;
+  }
+
+  private async uploadUserImage(image: Express.Multer.File) {
+    try {
+      const imageUrl = await this.imagesService.uploadImage(image);
+      return imageUrl;
+    } catch (error) {
+      throw new HttpError(500, '이미지 업로드 실패');
+    }
   }
 }
