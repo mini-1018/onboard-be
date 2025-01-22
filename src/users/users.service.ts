@@ -5,6 +5,9 @@ import { SigninDto } from './dto/signin-user.dto';
 import * as bcrypt from 'bcrypt';
 import { HttpError } from '@src/common/exceptions/httpError';
 import { ImagesService } from '@src/images/images.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from '@prisma/client';
+import { DeleteUserDto } from './dto/delete-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -38,6 +41,22 @@ export class UsersService {
     await this.comparePassword(password, user.password);
 
     return user;
+  }
+
+  async update(updateUserDto: UpdateUserDto, image?: Express.Multer.File) {
+    let imageUrl: string | undefined;
+    if (image) {
+      imageUrl = await this.uploadUserImage(image);
+    }
+    const user = await this.usersRepository.updateUser({
+      ...updateUserDto,
+      image: imageUrl,
+    });
+    return this.exceptionPassword(user);
+  }
+
+  async delete(deleteUserDto: DeleteUserDto) {
+    await this.usersRepository.deleteUser(deleteUserDto);
   }
 
   private async checkExistingUser(email: string) {
@@ -79,5 +98,10 @@ export class UsersService {
     } catch (error) {
       throw new HttpError(500, '이미지 업로드 실패');
     }
+  }
+
+  private async exceptionPassword(user: User) {
+    const { password, ...rest } = user;
+    return rest;
   }
 }
