@@ -1,4 +1,5 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -10,4 +11,8 @@ export class CreatePostDto {
   @IsNotEmpty()
   @IsArray()
   tags: string[];
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  userId: number;
 }

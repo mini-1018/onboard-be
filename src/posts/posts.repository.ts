@@ -1,19 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@src/prisma/prisma.service';
-import { GetPostsDto } from './dto/get-posts.dto';
-
-interface PostData {
-  title: string;
-  content: string;
-  userId: number;
-  tags: {
-    connectOrCreate: {
-      where: { name: string };
-      create: { name: string };
-    }[];
-  };
-}
 
 @Injectable()
 export class PostsRepository {
@@ -21,6 +8,13 @@ export class PostsRepository {
 
   createPost(postData: Prisma.PostCreateInput) {
     return this.prisma.post.create({
+      data: postData,
+    });
+  }
+
+  updatePost(id: number, postData: Prisma.PostUpdateInput) {
+    return this.prisma.post.update({
+      where: { id },
       data: postData,
     });
   }

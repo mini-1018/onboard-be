@@ -9,8 +9,8 @@ import { Post, Prisma } from '@prisma/client';
 export class PostsService {
   constructor(private readonly postsRepository: PostsRepository) {}
 
-  create(createPostDto: CreatePostDto, userId: number) {
-    const postData = this.createPostData(createPostDto, userId);
+  create(createPostDto: CreatePostDto) {
+    const postData = this.createPostData(createPostDto);
     return this.postsRepository.createPost(postData);
   }
 
@@ -24,19 +24,34 @@ export class PostsService {
     return this.postsRepository.findOne(id);
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  update(updatePostDto: UpdatePostDto) {
+    const { id, ...rest } = updatePostDto;
+    const postData = this.patchPostData(rest);
+    return this.postsRepository.updatePost(id, postData);
   }
 
   remove(id: number) {
     return `This action removes a #${id} post`;
   }
 
-  private createPostData(createPostDto: CreatePostDto, userId: number) {
+  private patchPostData(rest) {
+    return {
+      title: rest.title,
+      content: rest.content,
+      tags: {
+        connectOrCreate: rest.tags.map((tagName) => ({
+          where: { name: tagName },
+          create: { name: tagName },
+        })),
+      },
+    };
+  }
+
+  private createPostData(createPostDto: CreatePostDto) {
     return {
       title: createPostDto.title,
       content: createPostDto.content,
-      user: { connect: { id: userId || 1 } },
+      user: { connect: { id: createPostDto.userId } },
       tags: {
         connectOrCreate: createPostDto.tags.map((tagName) => ({
           where: { name: tagName },
