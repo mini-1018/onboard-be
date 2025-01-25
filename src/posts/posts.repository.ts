@@ -1,16 +1,83 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '@src/prisma/prisma.service';
-import { CreatePostDto } from './dto/create-post.dto';
 
 @Injectable()
 export class PostsRepository {
   constructor(private readonly prisma: PrismaService) {}
-  createPost(createPostDto: CreatePostDto) {
+
+  createPost(postData: Prisma.PostCreateInput) {
     return this.prisma.post.create({
-      data: {
-        title: createPostDto.title,
-        content: createPostDto.content,
-        authorId: createPostDto.authorId,
+      data: postData,
+    });
+  }
+
+  updatePost(id: number, postData: Prisma.PostUpdateInput) {
+    return this.prisma.post.update({
+      where: { id },
+      data: postData,
+    });
+  }
+
+  async getPosts(queryParams: Prisma.PostFindManyArgs) {
+    const [posts, totalCount] = await this.prisma.$transaction([
+      this.prisma.post.findMany({
+        ...queryParams,
+        include: {
+          user: { select: { id: true, name: true } },
+          tags: { select: { name: true } },
+          comments: true,
+          likes: { select: { userId: true } },
+        },
+      }),
+      this.prisma.post.count({
+        where: queryParams.where,
+      }),
+    ]);
+
+    return {
+      posts,
+      totalCount,
+    };
+  }
+
+  async getPostsByUserId(userId: number, queryParams: Prisma.PostFindManyArgs) {
+    const [posts, totalCount] = await this.prisma.$transaction([
+      this.prisma.post.findMany({
+        ...queryParams,
+        where: {
+          ...queryParams.where,
+          userId,
+        },
+        include: {
+          user: { select: { id: true, name: true } },
+          tags: { select: { name: true } },
+          comments: true,
+          likes: { select: { userId: true } },
+        },
+      }),
+      this.prisma.post.count({
+        where: {
+          ...queryParams.where,
+          userId,
+        },
+      }),
+    ]);
+
+    return {
+      posts,
+      totalCount,
+    };
+  }
+
+  findOne(id: number) {
+    return this.prisma.post.findUnique({
+      where: { id },
+      include: {
+        tags: { select: { name: true } },
+        comments: true,
+        likes: { select: { userId: true } },
+        user: { select: { id: true, name: true } },
       },
     });
   }

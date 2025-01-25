@@ -15,25 +15,29 @@ datasource db {
 
 model User {
   id        Int       @id @default(autoincrement())
-  name      String    @unique
+  name      String
   email     String    @unique
   password  String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  image     Image[]
   posts     Post[]
   comments  Comment[]
+  likes     Like[]
 }
 
 model Post {
   id        Int       @id @default(autoincrement())
   title     String
   content   String
-  authorId  Int
-  author    User      @relation(fields: [authorId], references: [id])
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   comments  Comment[]
   images    Image[]
+  likes     Like[]
+  tags      Tag[]
 }
 
 model Comment {
@@ -41,8 +45,8 @@ model Comment {
   content   String
   postId    Int
   post      Post     @relation(fields: [postId], references: [id])
-  authorId  Int
-  author    User     @relation(fields: [authorId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -50,9 +54,29 @@ model Comment {
 model Image {
   id        Int      @id @default(autoincrement())
   url       String
-  postId    Int
-  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int?
+  post      Post?    @relation(fields: [postId], references: [id])
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
   status    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  postId    Int?
+  post      Post?    @relation(fields: [postId], references: [id])
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  posts     Post[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
