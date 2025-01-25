@@ -20,15 +20,54 @@ export class PostsRepository {
   }
 
   async getPosts(queryParams: Prisma.PostFindManyArgs) {
-    return this.prisma.post.findMany({
-      ...queryParams,
-      include: {
-        user: { select: { id: true, name: true } },
-        tags: { select: { name: true } },
-        comments: true,
-        likes: { select: { userId: true } },
-      },
-    });
+    const [posts, totalCount] = await this.prisma.$transaction([
+      this.prisma.post.findMany({
+        ...queryParams,
+        include: {
+          user: { select: { id: true, name: true } },
+          tags: { select: { name: true } },
+          comments: true,
+          likes: { select: { userId: true } },
+        },
+      }),
+      this.prisma.post.count({
+        where: queryParams.where,
+      }),
+    ]);
+
+    return {
+      posts,
+      totalCount,
+    };
+  }
+
+  async getPostsByUserId(userId: number, queryParams: Prisma.PostFindManyArgs) {
+    const [posts, totalCount] = await this.prisma.$transaction([
+      this.prisma.post.findMany({
+        ...queryParams,
+        where: {
+          ...queryParams.where,
+          userId,
+        },
+        include: {
+          user: { select: { id: true, name: true } },
+          tags: { select: { name: true } },
+          comments: true,
+          likes: { select: { userId: true } },
+        },
+      }),
+      this.prisma.post.count({
+        where: {
+          ...queryParams.where,
+          userId,
+        },
+      }),
+    ]);
+
+    return {
+      posts,
+      totalCount,
+    };
   }
 
   findOne(id: number) {

@@ -1,4 +1,4 @@
-import { IsOptional, IsNumber, IsString, IsEnum, IsInt } from 'class-validator';
+import { IsOptional, IsNumber, IsString, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum PostOrderBy {
@@ -10,12 +10,12 @@ export enum PostOrderBy {
 export class GetPostsDto {
   @IsOptional()
   @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   cursor?: number;
 
   @IsOptional()
   @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   limit: number = 20;
 
   @IsOptional()

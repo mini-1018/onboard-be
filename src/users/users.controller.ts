@@ -2,8 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
+  Param,
   Patch,
   Post,
+  Query,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -17,10 +20,15 @@ import { memoryStorage } from 'multer';
 import { multerOptions } from '@src/common/utils/multer/multer.utils';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
+import { GetPostsDto } from '@src/posts/dto/get-posts.dto';
+import { PostsService } from '@src/posts/posts.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly postsService: PostsService,
+  ) {}
 
   @Post('/signup')
   @UseInterceptors(
@@ -64,5 +72,15 @@ export class UsersController {
   async delete(@Body() deleteUserDto: DeleteUserDto, @Res() res: Response) {
     await this.usersService.delete(deleteUserDto);
     return res.status(200).send();
+  }
+
+  @Get(':userId/posts')
+  getPostsByUserId(
+    @Param('userId') userId: string,
+    @Query() query: GetPostsDto,
+  ) {
+    console.log(userId);
+    console.log(query);
+    return this.postsService.getPostsByUserId(+userId, query);
   }
 }

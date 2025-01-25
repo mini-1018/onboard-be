@@ -5,6 +5,11 @@ import { PostsRepository } from './posts.repository';
 import { GetPostsDto, PostOrderBy } from './dto/get-posts.dto';
 import { Post, Prisma } from '@prisma/client';
 
+export enum SearchType {
+  ALL = 'all',
+  SEARCH_ONLY = 'search',
+}
+
 @Injectable()
 export class PostsService {
   constructor(private readonly postsRepository: PostsRepository) {}
@@ -16,12 +21,28 @@ export class PostsService {
 
   async getPosts(query: GetPostsDto) {
     const queryParams = this.queryParams(query);
-    const posts = await this.postsRepository.getPosts(queryParams);
-    return this.formatPostsResponse(posts, query);
+    const { posts, totalCount } =
+      await this.postsRepository.getPosts(queryParams);
+    return {
+      ...this.formatPostsResponse(posts, query),
+      totalCount,
+    };
   }
 
   findOne(id: number) {
     return this.postsRepository.findOne(id);
+  }
+
+  async getPostsByUserId(userId: number, query: GetPostsDto) {
+    const queryParams = this.queryParams(query, SearchType.ALL);
+    const { posts, totalCount } = await this.postsRepository.getPostsByUserId(
+      userId,
+      queryParams,
+    );
+    return {
+      ...this.formatPostsResponse(posts, query),
+      totalCount,
+    };
   }
 
   update(updatePostDto: UpdatePostDto) {
@@ -76,14 +97,18 @@ export class PostsService {
     return options[orderBy];
   }
 
-  private whereOptions(tag?: string, search?: string) {
+  private whereOptions(
+    tag?: string,
+    search?: string,
+    searchType: SearchType = SearchType.SEARCH_ONLY,
+  ) {
     const where: Prisma.PostWhereInput = {};
 
     if (tag) {
       where.tags = { some: { name: tag } };
     }
 
-    if (search === '') {
+    if (searchType === SearchType.SEARCH_ONLY && search === '') {
       return { id: -1 };
     }
 
@@ -96,14 +121,17 @@ export class PostsService {
     return where;
   }
 
-  private queryParams(query: GetPostsDto): Prisma.PostFindManyArgs {
+  private queryParams(
+    query: GetPostsDto,
+    searchType?: SearchType,
+  ): Prisma.PostFindManyArgs {
     const { cursor, limit, tag, search, orderBy } = query;
 
     return {
       take: limit + 1,
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor } : undefined,
-      where: this.whereOptions(tag, search),
+      where: this.whereOptions(tag, search, searchType),
       orderBy: this.orderByOptions(orderBy),
     };
   }
