@@ -13,7 +13,7 @@ async function bootstrap() {
     }),
   ),
     app.enableCors({
-      origin: process.env.NODE_ENV,
+      origin: [process.env.NODE_ENV, process.env.NODE_ENV_WWW],
       credentials: false,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
       allowedHeaders: [
