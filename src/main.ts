@@ -12,16 +12,17 @@ async function bootstrap() {
       forbidNonWhitelisted: false,
     }),
   ),
-    // 모든 도메인 허용
-    app.enableCors();
-
-  // 또는 상세 설정
-  app.enableCors({
-    origin: ['http://localhost:3001'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    credentials: false,
-    allowedHeaders: ['Content-Type', 'Authorization', 'multipart/form-data'],
-  });
+    app.enableCors({
+      origin: process.env.NODE_ENV,
+      credentials: false,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Access-Control-Allow-Origin',
+        'Access-Control-Allow-Credentials',
+      ],
+    });
 
   await app.listen(process.env.PORT ?? 3000);
 }
