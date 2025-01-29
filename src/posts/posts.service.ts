@@ -4,6 +4,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsRepository } from './posts.repository';
 import { GetPostsDto, PostOrderBy } from './dto/get-posts.dto';
 import { Post, Prisma } from '@prisma/client';
+import { CommentsService } from '@src/comments/comments.service';
 
 export enum SearchType {
   ALL = 'all',
@@ -12,7 +13,10 @@ export enum SearchType {
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly postsRepository: PostsRepository) {}
+  constructor(
+    private readonly postsRepository: PostsRepository,
+    private readonly commentsService: CommentsService,
+  ) {}
 
   create(createPostDto: CreatePostDto) {
     const postData = this.createPostData(createPostDto);
@@ -29,8 +33,13 @@ export class PostsService {
     };
   }
 
-  findOne(id: number) {
-    return this.postsRepository.findOne(id);
+  async findOne(id: number) {
+    const post = await this.postsRepository.findOne(id);
+    const comments = await this.commentsService.findByPostId(id);
+    return {
+      ...post,
+      comments,
+    };
   }
 
   async getPostsByUserId(userId: number, query: GetPostsDto) {
