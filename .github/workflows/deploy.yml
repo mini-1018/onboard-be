@@ -34,6 +34,8 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
           npm install
+          npx prisma migrate dev
+          npx prisma generate
           npm run build
           
           if ! pm2 list | grep -q "onboard"; then
