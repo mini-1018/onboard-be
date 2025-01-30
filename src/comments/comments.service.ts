@@ -4,6 +4,14 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentsRepository } from './comments.repository';
 import { Comment } from '.prisma/client';
 
+interface CommentWithUser extends Comment {
+  user: {
+    id: number;
+    name: string;
+    image: { url: string }[];
+  };
+}
+
 @Injectable()
 export class CommentsService {
   constructor(private readonly commentsRepository: CommentsRepository) {}
@@ -25,12 +33,22 @@ export class CommentsService {
     return this.commentsRepository.remove(id);
   }
 
-  private buildCommentTree(comments: Comment[]) {
+  private buildCommentTree(comments: CommentWithUser[]) {
     const commentMap = new Map();
     const roots = [];
 
     comments.forEach((comment) => {
-      commentMap.set(comment.id, { ...comment, replies: [] });
+      const imageUrl = comment.user.image?.[0].url || null;
+
+      commentMap.set(comment.id, {
+        ...comment,
+        replies: [],
+        user: {
+          id: comment.user.id,
+          name: comment.user.name,
+          image: imageUrl,
+        },
+      });
     });
 
     comments.forEach((comment) => {

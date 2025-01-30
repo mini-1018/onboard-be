@@ -35,6 +35,7 @@ export class CommentsRepository {
           select: {
             id: true,
             name: true,
+            image: { where: { status: true }, select: { url: true } },
           },
         },
       },
