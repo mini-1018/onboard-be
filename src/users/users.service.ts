@@ -36,7 +36,6 @@ export class UsersService {
 
   async signin(signinDto: SigninDto) {
     const { email, password } = signinDto;
-
     const user = await this.findUserByEmail(email);
     await this.comparePassword(password, user.password);
 
