@@ -34,10 +34,9 @@ export class UsersRepository {
   }
 
   async findUserByEmail(email: string) {
-    console.log('Finding user with email:', email);
     return this.prisma.user.findUnique({
       where: { email },
-      include: { image: true },
+      include: { image: { where: { status: true } } },
     });
   }
 

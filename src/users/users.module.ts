@@ -3,18 +3,12 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { PrismaModule } from '@src/prisma/prisma.module';
-import { ImagesService } from '@src/images/images.service';
-import { PostsService } from '@src/posts/posts.service';
-import { PostsRepository } from '@src/posts/posts.repository';
+import { PostsModule } from '@src/posts/posts.module';
+import { CommentsModule } from '@src/comments/comments.module';
+import { ImagesModule } from '@src/images/images.module';
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, PostsModule, CommentsModule, ImagesModule],
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    UsersRepository,
-    ImagesService,
-    PostsService,
-    PostsRepository,
-  ],
+  providers: [UsersService, UsersRepository],
 })
 export class UsersModule {}
