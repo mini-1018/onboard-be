@@ -7,10 +7,14 @@ export class LikesService {
 
   async toggleLike(postId: number, userId: number) {
     const existingLike = await this.likesRepository.findLike(userId, postId);
-    console.log(existingLike);
     if (existingLike) {
-      return this.likesRepository.deleteLike(userId, postId);
+      await this.likesRepository.deleteLike(userId, postId);
+    } else {
+      await this.likesRepository.createLike(userId, postId);
     }
-    return this.likesRepository.createLike(userId, postId);
+
+    const likeCount = await this.likesRepository.getLikeCount(postId);
+
+    return { likeCount, isLiked: !existingLike };
   }
 }

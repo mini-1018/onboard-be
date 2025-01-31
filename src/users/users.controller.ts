@@ -79,8 +79,6 @@ export class UsersController {
     @Param('userId') userId: string,
     @Query() query: GetPostsDto,
   ) {
-    console.log(userId);
-    console.log(query);
     return this.postsService.getPostsByUserId(+userId, query);
   }
 }
