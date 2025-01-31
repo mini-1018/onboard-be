@@ -27,4 +27,8 @@ export class LikesRepository {
       },
     });
   }
+
+  async getLikeCount(postId: number) {
+    return this.prisma.like.count({ where: { postId } });
+  }
 }
