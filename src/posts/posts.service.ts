@@ -5,6 +5,10 @@ import { PostsRepository } from './posts.repository';
 import { GetPostsDto, PostOrderBy } from './dto/get-posts.dto';
 import { Post, Prisma } from '@prisma/client';
 import { CommentsService } from '@src/comments/comments.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
+import { currentTime } from '@src/common/utils/time.util';
 
 export enum SearchType {
   ALL = 'all',
@@ -14,30 +18,55 @@ export enum SearchType {
 @Injectable()
 export class PostsService {
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly postsRepository: PostsRepository,
     private readonly commentsService: CommentsService,
   ) {}
 
-  create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto) {
     const postData = this.createPostData(createPostDto);
-    return this.postsRepository.createPost(postData);
+    const newPost = await this.postsRepository.createPost(postData);
+    await this.invalidatePostsCache();
+    return newPost;
   }
 
   async getPosts(query: GetPostsDto) {
+    const cacheKey = `posts:${JSON.stringify(query)}`;
+
+    const cachedPosts = await this.cacheManager.get(cacheKey);
+    if (cachedPosts) {
+      return cachedPosts;
+    }
+
     const queryParams = this.queryParams(query);
     const { posts, totalCount } =
       await this.postsRepository.getPosts(queryParams);
-    return {
-      ...this.formatPostsResponse(posts, query),
+
+    const postsWithTime = await Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        createdAt: await this.currentTime(post.createdAt),
+      })),
+    );
+
+    const response = {
+      ...this.formatPostsResponse(postsWithTime, query),
       totalCount,
     };
+
+    await this.cacheManager.set(cacheKey, response, 10 * 1000);
+    return response;
   }
 
   async findOne(id: number) {
     const post = await this.postsRepository.findOne(id);
+    const postWithTime = {
+      ...post,
+      createdAt: await this.currentTime(post.createdAt),
+    };
     const comments = await this.commentsService.findByPostId(id);
     return {
-      ...post,
+      ...postWithTime,
       comments,
     };
   }
@@ -48,8 +77,14 @@ export class PostsService {
       userId,
       queryParams,
     );
+    const postsWithTime = await Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        createdAt: await this.currentTime(post.createdAt),
+      })),
+    );
     return {
-      ...this.formatPostsResponse(posts, query),
+      ...this.formatPostsResponse(postsWithTime, query),
       totalCount,
     };
   }
@@ -145,7 +180,10 @@ export class PostsService {
     };
   }
 
-  private formatPostsResponse(posts: Post[], query: GetPostsDto) {
+  private formatPostsResponse(
+    posts: (Omit<Post, 'createdAt'> & { createdAt: string })[],
+    query: GetPostsDto,
+  ) {
     const hasNextPage = posts.length > query.limit;
     const postsData = hasNextPage ? posts.slice(0, -1) : posts;
 
@@ -154,5 +192,14 @@ export class PostsService {
       hasNextPage,
       nextCursor: hasNextPage ? postsData[postsData.length - 1].id : undefined,
     };
+  }
+
+  private async invalidatePostsCache() {
+    await this.cacheManager.del('posts:*'); // 전체 캐시 삭제
+  }
+
+  private async currentTime(createAt: Date | string) {
+    const time = currentTime(createAt);
+    return time;
   }
 }
