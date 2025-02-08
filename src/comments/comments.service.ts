@@ -3,6 +3,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentsRepository } from './comments.repository';
 import { Comment } from '.prisma/client';
+import { currentTime } from '@src/common/utils/time.util';
 
 interface CommentWithUser extends Comment {
   user: {
@@ -42,6 +43,7 @@ export class CommentsService {
 
       commentMap.set(comment.id, {
         ...comment,
+        createdAt: currentTime(comment.createdAt),
         replies: [],
         user: {
           id: comment.user.id,
