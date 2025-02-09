@@ -5,10 +5,11 @@ import { PostsModule } from './posts/posts.module';
 import { ImagesModule } from './images/images.module';
 import { TagsModule } from './tags/tags.module';
 import { LikesModule } from './likes/likes.module';
-
 import { CommentsModule } from './comments/comments.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
+import { OutboxModule } from './outbox/outbox.module';
 
 @Module({
   imports: [
@@ -17,12 +18,14 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
       ttl: 10,
       max: 100,
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     PostsModule,
     ImagesModule,
     TagsModule,
     LikesModule,
     CommentsModule,
+    OutboxModule,
   ],
   providers: [
     PrismaService,

@@ -85,3 +85,16 @@ model Tag {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Outbox {
+  id        Int      @id @default(autoincrement())
+  eventType String
+  payload   Json
+  status    String
+  retries   Int      @default(0)
+  error     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, eventType])
+}
