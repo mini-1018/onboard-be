@@ -38,6 +38,8 @@ model Post {
   images    Image[]
   likes     Like[]
   tags      Tag[]
+
+  @@index([userId])
 }
 
 model Comment {
@@ -52,6 +54,9 @@ model Comment {
   user      User      @relation(fields: [userId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@index([postId])
+  @@index([parentId])
 }
 
 model Image {
@@ -64,6 +69,9 @@ model Image {
   status    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([userId])
 }
 
 model Like {
@@ -76,6 +84,8 @@ model Like {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
 }
 
 model Tag {

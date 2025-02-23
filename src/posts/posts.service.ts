@@ -23,8 +23,8 @@ export class PostsService {
     private readonly commentsService: CommentsService,
   ) {}
 
-  async create(createPostDto: CreatePostDto) {
-    const postData = this.createPostData(createPostDto);
+  async create(userId: number, createPostDto: CreatePostDto) {
+    const postData = this.createPostData(userId, createPostDto);
     const newPost = await this.postsRepository.createPost(postData);
     await this.invalidatePostsCache();
     return newPost;
@@ -112,11 +112,11 @@ export class PostsService {
     };
   }
 
-  private createPostData(createPostDto: CreatePostDto) {
+  private createPostData(userId: number, createPostDto: CreatePostDto) {
     return {
       title: createPostDto.title,
       content: createPostDto.content,
-      user: { connect: { id: createPostDto.userId } },
+      user: { connect: { id: userId } },
       tags: {
         connectOrCreate: createPostDto.tags.map((tagName) => ({
           where: { name: tagName },

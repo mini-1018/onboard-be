@@ -3,7 +3,7 @@ import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SigninDto } from './dto/signin-user.dto';
 import * as bcrypt from 'bcrypt';
-import { HttpError } from '@src/common/exceptions/httpError';
+import { customError } from '@src/common/exceptions/customError';
 import { ImagesService } from '@src/images/images.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from '@prisma/client';
@@ -61,7 +61,7 @@ export class UsersService {
   private async checkExistingUser(email: string) {
     const existingUser = await this.usersRepository.findUserByEmail(email);
     if (existingUser) {
-      throw new HttpError(409, '이미 존재하는 이메일입니다.');
+      customError(409, '0011');
     }
   }
 
@@ -70,14 +70,14 @@ export class UsersService {
       const hashedPassword = await bcrypt.hash(password, 10);
       return hashedPassword;
     } catch (error) {
-      throw new HttpError(500, '비밀번호 암호화 실패');
+      customError(500, '0014');
     }
   }
 
   private async findUserByEmail(email: string) {
     const user = await this.usersRepository.findUserByEmail(email);
     if (!user) {
-      throw new HttpError(404, '존재하지 않는 이메일입니다.');
+      customError(404, '0012');
     }
     return user;
   }
@@ -85,7 +85,7 @@ export class UsersService {
   private async comparePassword(password: string, hashedPassword: string) {
     const isPasswordValid = await bcrypt.compare(password, hashedPassword);
     if (!isPasswordValid) {
-      throw new HttpError(401, '비밀번호가 일치하지 않습니다.');
+      customError(401, '0013');
     }
     return isPasswordValid;
   }
@@ -95,7 +95,7 @@ export class UsersService {
       const imageUrl = await this.imagesService.uploadImage(image);
       return imageUrl;
     } catch (error) {
-      throw new HttpError(500, '이미지 업로드 실패');
+      customError(500, '0021');
     }
   }
 

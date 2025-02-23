@@ -7,9 +7,13 @@ import { TagsModule } from './tags/tags.module';
 import { LikesModule } from './likes/likes.module';
 import { CommentsModule } from './comments/comments.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { OutboxModule } from './outbox/outbox.module';
+import { AuthModule } from './auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { RedisModule } from './redis/redis.module';
+import { CustomThrottlerGuard } from './common/guard/throttler.guard';
 
 @Module({
   imports: [
@@ -18,6 +22,10 @@ import { OutboxModule } from './outbox/outbox.module';
       ttl: 10,
       max: 100,
     }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    RedisModule,
     ScheduleModule.forRoot(),
     UsersModule,
     PostsModule,
@@ -26,12 +34,17 @@ import { OutboxModule } from './outbox/outbox.module';
     LikesModule,
     CommentsModule,
     OutboxModule,
+    AuthModule,
   ],
   providers: [
     PrismaService,
     {
       provide: APP_INTERCEPTOR,
       useClass: CacheInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: CustomThrottlerGuard,
     },
   ],
   exports: [PrismaService],
