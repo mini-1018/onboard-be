@@ -41,7 +41,7 @@ jobs:
             -p 3000:3000 \
             --env-file .env \
             --restart always \
-            onboard-backend
+            onboard-be:latest
 
           docker image prune -f
           EOF
