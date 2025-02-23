@@ -7,12 +7,16 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { GetPostsDto } from './dto/get-posts.dto';
 import { CommentsService } from '@src/comments/comments.service';
+import { JwtAuthGuard } from '@src/common/guard/jwt-auth.guard';
+import { Request } from 'express';
 
 @Controller('posts')
 export class PostsController {
@@ -22,8 +26,9 @@ export class PostsController {
   ) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  @UseGuards(JwtAuthGuard)
+  create(@Req() req: Request, @Body() createPostDto: CreatePostDto) {
+    return this.postsService.create(req.user.id, createPostDto);
   }
 
   @Get()
@@ -37,7 +42,8 @@ export class PostsController {
   }
 
   @Patch()
-  update(@Body() updatePostDto: UpdatePostDto) {
+  @UseGuards(JwtAuthGuard)
+  update(@Req() req: Request, @Body() updatePostDto: UpdatePostDto) {
     return this.postsService.update(updatePostDto);
   }
 
