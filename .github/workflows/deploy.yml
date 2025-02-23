@@ -42,6 +42,5 @@ jobs:
             --env-file .env \
             --restart always \
             onboard-be:latest
-
           docker image prune -f
-          EOF
+        EOF
