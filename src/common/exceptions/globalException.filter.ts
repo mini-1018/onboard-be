@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { errorMessage } from './errorMessage';
-import { ThrottlerException } from '@nestjs/throttler/dist';
 
 interface ErrorResponse {
   statusCode: number;
