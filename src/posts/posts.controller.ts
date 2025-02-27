@@ -44,12 +44,13 @@ export class PostsController {
   @Patch()
   @UseGuards(JwtAuthGuard)
   update(@Req() req: Request, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(updatePostDto);
+    return this.postsService.update(req.user.id, updatePostDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  remove(@Req() req: Request, @Param('id') id: string) {
+    return this.postsService.remove(req.user.id, +id);
   }
 
   @Get(':postId/comments')

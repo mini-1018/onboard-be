@@ -9,6 +9,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { currentTime } from '@src/common/utils/time.util';
+import { customError } from '@src/common/exceptions/customError';
 
 export enum SearchType {
   ALL = 'all',
@@ -89,14 +90,24 @@ export class PostsService {
     };
   }
 
-  update(updatePostDto: UpdatePostDto) {
+  async update(userId: number, updatePostDto: UpdatePostDto) {
     const { id, ...rest } = updatePostDto;
+    const post = await this.postsRepository.findOne(id);
+    if (post.userId !== userId) {
+      customError(403, '0001');
+    }
+    await this.invalidatePostsCache();
     const postData = this.patchPostData(rest);
     return this.postsRepository.updatePost(id, postData);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(userId: number, id: number) {
+    const post = await this.postsRepository.findOne(id);
+    if (post.userId !== userId) {
+      customError(403, '0001');
+    }
+    await this.invalidatePostsCache();
+    return this.postsRepository.deletePost(id);
   }
 
   private patchPostData(rest) {

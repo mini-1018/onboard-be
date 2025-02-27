@@ -19,6 +19,17 @@ export class PostsRepository {
     });
   }
 
+  async deletePost(id: number) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.comment.deleteMany({
+        where: { postId: id },
+      });
+      return tx.post.delete({
+        where: { id },
+      });
+    });
+  }
+
   async getPosts(queryParams: Prisma.PostFindManyArgs) {
     const [posts, totalCount] = await this.prisma.$transaction([
       this.prisma.post.findMany({
