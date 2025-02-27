@@ -11,13 +11,16 @@ OnBoard는 개발자들이 코딩 과정에서 겪은 문제나 고민을 공유
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
 
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
-<img src="https://img.shields.io/badge/PM2-black?style=for-the-badge&logo=PM2&logoColor=white">
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
 ## 3. Architecture
-![image](https://github.com/user-attachments/assets/44324365-bcec-442a-b35b-83aa89e897fe)
+![image](https://mini1018-image.s3.ap-northeast-2.amazonaws.com/profiles/BackA.png)
 
 ## 4. feature
-1. 인메모리 캐싱 전략
-2. 분산 트랜잭션 원자성 보장
+1. Late Limiting
+2. 인메모리 캐싱 전략
+3. 분산 트랜잭션 원자성 보장
