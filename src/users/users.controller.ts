@@ -3,18 +3,19 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Patch,
   Post,
   Query,
+  Req,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SigninDto } from './dto/signin-user.dto';
 import { UsersService } from './users.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { multerOptions } from '@src/common/utils/multer/multer.utils';
@@ -22,6 +23,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { GetPostsDto } from '@src/posts/dto/get-posts.dto';
 import { PostsService } from '@src/posts/posts.service';
+import { JwtAuthGuard } from '@src/common/guard/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -74,11 +76,9 @@ export class UsersController {
     return res.status(200).send();
   }
 
-  @Get(':userId/posts')
-  getPostsByUserId(
-    @Param('userId') userId: string,
-    @Query() query: GetPostsDto,
-  ) {
-    return this.postsService.getPostsByUserId(+userId, query);
+  @Get('/posts')
+  @UseGuards(JwtAuthGuard)
+  getPostsByUserId(@Query() query: GetPostsDto, @Req() req: Request) {
+    return this.postsService.getPostsByUserId(req.user.id, query);
   }
 }
